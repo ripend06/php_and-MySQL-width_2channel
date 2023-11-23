@@ -1,11 +1,7 @@
 <?php
-include_once("./app/detabase/connect.php");
-
-include("./app/functions/comment_add.php");
-include("./app/functions/comment_get.php");
+include_once("./app/detabase/connect.php"); //include_onceで一度だけ読み込む
 
 ?>
-
 
 
 <!DOCTYPE html>
@@ -18,11 +14,17 @@ include("./app/functions/comment_get.php");
 </head>
 <body>
 
+    <!-- header.phpを読み込む　-->
     <?php include("./app/parts/header.php") ?>
 
+    <!-- validation.phpを読み込む　-->
     <?php include("./app/parts/validation.php") ?>
 
+    <!-- thread.phpを読み込む　-->
     <?php include("./app/parts/thread.php") ?>
+
+    <!-- newThreadButton.phpを読み込む　-->
+    <?php include("./app/parts/newThreadButton.php") ?>
 
 </body>
 </html>
