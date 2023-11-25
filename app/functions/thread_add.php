@@ -32,38 +32,51 @@ if(isset($_POST["threadSubmitButton"])) { //リロードでエラー回避　iss
     if(empty($error_message)) {
 
         $post_date = date("Y-m-d H:i:s"); //date関数で日時を取得
-    
-        //スレッドを追加
-        $sql = "INSERT INTO `thread` (`title`) VALUES (:title);"; //:とは？
-        $statement = $pdo->prepare($sql);
-    
-        //値をセットする
-        $statement->bindParam(":title", $escaped["title"], PDO::PARAM_STR); //bindParam関数で値をセットする。　PDO::PARAM_STRは文字列指定って意味
-    
-        $statement->execute();
         
+        //トランザクション開始
+        $pdo->beginTransaction();
 
-        //コメントを追加
-        // thread_id はどこのコメントに投稿してるかのIDを指定する必要がある
-        //　:title　は、スレッドフォームのtitle
-        //  title は、$sql = "INSERT INTO `thread` (`title`) VALUES (:title);";
-        // :titleとtitleが等しければ、そのIDをとってくる
+        try {
 
-        // 流れ
-        // ０　スレッドが最初に存在してて、
-        //　①:titleとtitleが一緒ならば、そのスレッドのIDを取得してくる
-        //　② ①のIDをコメントのthread_idに入れてあげる
-        $sql = "INSERT INTO comment (username, body, post_date, thread_id)
-        VALUES (:username, :body, :post_date, (SELECT id FROM thread WHERE title = :title))";
-        $statement = $pdo->prepare($sql);
+            //スレッドを追加
+            $sql = "INSERT INTO `thread` (`title`) VALUES (:title);"; //:とは？
+            $statement = $pdo->prepare($sql);
+        
+            //値をセットする
+            $statement->bindParam(":title", $escaped["title"], PDO::PARAM_STR); //bindParam関数で値をセットする。　PDO::PARAM_STRは文字列指定って意味
+        
+            $statement->execute();
+            
 
-        //値をセットする
-        $statement->bindParam(":username", $escaped["username"], PDO::PARAM_STR);
-        $statement->bindParam(":body", $escaped["body"], PDO::PARAM_STR);
-        $statement->bindParam(":post_date", $post_date, PDO::PARAM_STR);
-        $statement->bindParam(":title", $escaped["title"], PDO::PARAM_STR); //:titleは５２行目の:title
+            //コメントを追加
+            // thread_id はどこのコメントに投稿してるかのIDを指定する必要がある
+            //　:title　は、スレッドフォームのtitle
+            //  title は、$sql = "INSERT INTO `thread` (`title`) VALUES (:title);";
+            // :titleとtitleが等しければ、そのIDをとってくる
 
-        $statement->execute();
+            // 流れ
+            // ０　スレッドが最初に存在してて、
+            //　①:titleとtitleが一緒ならば、そのスレッドのIDを取得してくる
+            //　② ①のIDをコメントのthread_idに入れてあげる
+            $sql = "INSERT INTO comment (username, body, post_date, thread_id)
+            VALUES (:username, :body, :post_date, (SELECT id FROM thread WHERE title = :title))";
+            $statement = $pdo->prepare($sql);
+
+            //値をセットする
+            $statement->bindParam(":username", $escaped["username"], PDO::PARAM_STR);
+            $statement->bindParam(":body", $escaped["body"], PDO::PARAM_STR);
+            $statement->bindParam(":post_date", $post_date, PDO::PARAM_STR);
+            $statement->bindParam(":title", $escaped["title"], PDO::PARAM_STR); //:titleは５２行目の:title
+
+            $statement->execute();
+
+
+            $pdo->commit(); //正常にできたOKの記述
+        } catch (Exception $error) { //エラーを $error変数で保持
+            $pdo->rollBacck(); //最初に戻す
+        }
+
+
     }
 
     //掲示板ページにリダイレクト

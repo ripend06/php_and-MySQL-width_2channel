@@ -26,27 +26,37 @@ if(isset($_POST["submitButton"])) { //リロードでエラー回避　isssetで
     if(empty($error_message)) {
 
         $post_date = date("Y-m-d H:i:s"); //date関数で日時を取得
-    
-        //INSERT流れ
-        //①prepareを実行
-        //②bindValue、bindParamを実行
-        //③executeを実行
-        //INSERT INTO テーブル名 VALUES (値1, 値2,...);
-        $sql = "INSERT INTO `comment` (`username`, `body`, `post_date`, `thread_id`)
-        VALUES (:username, :body, :post_date, :thread_id);"; //:とは？　名前付きプレースホルダーというもの。プレースホルダー記述でも可。
-        $statement = $pdo->prepare($sql);
-    
-        //値をセットする
-        //bindParam使い方
-        //第一引数には、パラメータID
-        //第二引数には、バインドする変数
-        //第三引数は、オプションで、バインドする値に対して明示的にデータ型を指定
-        $statement->bindParam(":username", $escaped["username"], PDO::PARAM_STR); //bindParam関数で値をセットする。　PDO::PARAM_STRは文字列指定って意味
-        $statement->bindParam(":body", $escaped["body"], PDO::PARAM_STR);
-        $statement->bindParam(":post_date", $post_date, PDO::PARAM_STR);
-        $statement->bindParam(":thread_id", $_POST["threadID"], PDO::PARAM_STR);
-    
-        $statement->execute();
+
+        //トランザクション開始
+        $pdo->beginTransaction();
+
+        try {
+            //INSERT流れ
+            //①prepareを実行
+            //②bindValue、bindParamを実行
+            //③executeを実行
+            //INSERT INTO テーブル名 VALUES (値1, 値2,...);
+            $sql = "INSERT INTO `comment` (`username`, `body`, `post_date`, `thread_id`)
+            VALUES (:username, :body, :post_date, :thread_id);"; //:とは？　名前付きプレースホルダーというもの。プレースホルダー記述でも可。
+            $statement = $pdo->prepare($sql);
+        
+            //値をセットする
+            //bindParam使い方
+            //第一引数には、パラメータID
+            //第二引数には、バインドする変数
+            //第三引数は、オプションで、バインドする値に対して明示的にデータ型を指定
+            $statement->bindParam(":username", $escaped["username"], PDO::PARAM_STR); //bindParam関数で値をセットする。　PDO::PARAM_STRは文字列指定って意味
+            $statement->bindParam(":body", $escaped["body"], PDO::PARAM_STR);
+            $statement->bindParam(":post_date", $post_date, PDO::PARAM_STR);
+            $statement->bindParam(":thread_id", $_POST["threadID"], PDO::PARAM_STR);
+        
+            $statement->execute();
+
+            $pdo->commit(); //正常にできたOKの記述
+        } catch (Exception $error) { //エラーを $error変数で保持
+            $pdo->rollBacck(); //最初に戻す
+        }
+
         
     }
 
