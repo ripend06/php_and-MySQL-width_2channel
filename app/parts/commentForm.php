@@ -10,7 +10,7 @@ if (isset($_POST["submitButton"])) { //書き込みボタンが押されたと�
     <div>
         <input type="submit" name="submitButton" value="書き込む">
         <label>名前：</label>
-        <input type="text" name="username">
+        <input type="text" name="username" value="<?php if ($thread[id] == $comment["thread_id"]) echo $_SESSION["username"] ?>"> <!-- スレッドIDとコメントのthread_idが一致するとき sessionを表示 -->
         <!-- $threadは、thread.phpの中の$threadから来てる -->
         <input type="hidden" name="threadID" value="<?php echo $thread["id"]; ?>">
     </div>

@@ -1,6 +1,8 @@
 <?php
 $error_message = array(); //連想配列で用意。名前とかテキストとか色々入るので
 
+session_start();
+
 //INSERT
 if(isset($_POST["submitButton"])) { //リロードでエラー回避　isssetで値が入っていたらって処理
 
@@ -12,6 +14,7 @@ if(isset($_POST["submitButton"])) { //リロードでエラー回避　isssetで
         //エスケープ処理
         // htmlspecialchars(【変換したい文字列】, 【ルール】, 【文字コード】);
         $escaped["username"] = htmlspecialchars($_POST["username"], ENT_QUOTES, "utf-8"); //htmlspecialcharsを使用でエスケープ処理
+        $_SESSION["username"] = $escaped["username"]; //エスケープされたユーザー名をセッションとして使用
     }
 
     //コメント入力チェック
